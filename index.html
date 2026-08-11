@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Movie Jeopardy</title>
+<!-- Inline so the app stays a self-contained folder with no extra requests. -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23060ce9'/><text x='16' y='24' font-size='22' font-family='Impact,sans-serif' text-anchor='middle' fill='%23ffcc5c'>J</text></svg>">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="error-banner" class="error-banner" hidden>
+  <strong>Couldn't load the question board.</strong>
+  <span id="error-detail"></span>
+  <button type="button" class="banner-close" data-action="dismiss-error">&times;</button>
+</div>
+
+<!-- ============================ SETUP ============================ -->
+<section id="screen-setup" class="screen">
+  <div class="setup-panel">
+    <h1 class="logo">Movie<span>Jeopardy</span></h1>
+    <p class="board-name" id="setup-board-title"></p>
+
+    <h2>Players</h2>
+    <ul id="player-list" class="player-list"></ul>
+    <p id="no-players-note" class="hint">Add at least one player to start.</p>
+
+    <form id="add-player-form" class="add-player">
+      <input type="text" id="player-name-input" placeholder="Player name" maxlength="20"
+             autocomplete="off" aria-label="New player name">
+      <button type="submit" class="btn btn-gold">Add</button>
+    </form>
+
+    <div class="setup-actions">
+      <button type="button" class="btn btn-big" data-action="start-game">Start Game</button>
+    </div>
+
+    <h2>Board</h2>
+    <div class="setup-actions">
+      <label class="btn btn-quiet file-btn">
+        Load JSON file&hellip;
+        <input type="file" id="board-file-input" accept=".json,application/json" hidden>
+      </label>
+      <button type="button" class="btn btn-quiet" data-action="reload-questions">Reload questions</button>
+    </div>
+
+    <h2>Danger zone</h2>
+    <div class="setup-actions">
+      <button type="button" class="btn btn-quiet" data-action="reset-scores">Reset scores</button>
+      <button type="button" class="btn btn-quiet" data-action="new-game">New game</button>
+      <button type="button" class="btn btn-quiet btn-danger" data-action="wipe">Erase everything</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BOARD ============================ -->
+<section id="screen-board" class="screen">
+  <header class="topbar">
+    <h1 class="topbar-title" id="board-title">Movie Jeopardy</h1>
+    <div class="topbar-actions">
+      <button type="button" class="btn btn-quiet" data-action="undo" id="undo-btn" title="Undo (Cmd/Ctrl+Z)">Undo</button>
+      <button type="button" class="btn btn-quiet" data-action="show-leaderboard">Leaderboard</button>
+      <button type="button" class="btn btn-quiet" data-action="start-final" id="final-btn">Final Jeopardy</button>
+      <button type="button" class="btn btn-quiet" data-action="show-setup" title="Setup">&#9881;</button>
+    </div>
+  </header>
+
+  <div id="board-grid" class="board-grid"></div>
+
+  <footer id="player-bar" class="player-bar"></footer>
+</section>
+
+<!-- ========================= LEADERBOARD ========================= -->
+<section id="screen-leaderboard" class="screen">
+  <div class="leaderboard-panel">
+    <h1 class="screen-title" id="leaderboard-title">Leaderboard</h1>
+    <ol id="leaderboard-list" class="leaderboard-list"></ol>
+    <div class="setup-actions">
+      <button type="button" class="btn btn-big" data-action="show-board">Back to board</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FINAL JEOPARDY ======================== -->
+<section id="screen-final" class="screen">
+  <div id="final-body" class="final-body"></div>
+</section>
+
+<!-- ========================= CLUE OVERLAY ======================== -->
+<div id="clue-overlay" class="clue-overlay" hidden>
+  <div id="clue-inner" class="clue-inner"></div>
+</div>
+
+<script src="data/questions.js"></script>
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/players.js"></script>
+<script src="js/board.js"></script>
+<script src="js/clue.js"></script>
+<script src="js/final.js"></script>
+<script src="js/leaderboard.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
