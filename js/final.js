@@ -1,10 +1,10 @@
 /* Final Jeopardy.
  *
- * Players write their wager on paper next to their answer, so the app collects
- * wagers during judging — after the clue and the answer have been revealed.
- * That keeps the laptop on the table instead of being passed around.
+ * No separate clue-reveal step: the round is played as dumb charades, acted
+ * out off-screen rather than displayed, so the category screen goes straight
+ * to a combined wager-and-judge screen.
  *
- * Phases: 'category' -> 'clue' -> 'judge'
+ * Phases: 'category' -> 'judge'
  */
 window.Final = (function () {
   'use strict';
@@ -90,8 +90,41 @@ window.Final = (function () {
 
     const phase = state.final.phase;
     if (phase === 'category') return renderCategory();
-    if (phase === 'clue') return renderClue();
     return renderJudge();
+  }
+
+  /* A labeled $ input that writes straight into state without a redraw.
+     Committing on every keystroke would rebuild the row on blur — and
+     destroy the very button whose click caused that blur, swallowing the
+     judgement. */
+  function wagerField(playerId, cap) {
+    const final = window.State.get().final;
+    const player = window.State.findPlayer(playerId);
+
+    const field = el('label', 'judge-wager');
+    field.appendChild(el('span', 'judge-wager-sign', '$'));
+
+    const input = el('input', 'judge-wager-input');
+    input.type = 'number';
+    input.min = '0';
+    input.max = String(cap);
+    input.step = '1';
+    input.value = final.wagers[playerId] !== undefined ? final.wagers[playerId] : '';
+    input.placeholder = '0';
+    input.setAttribute('aria-label', 'Wager for ' + player.name);
+
+    input.addEventListener('input', function () {
+      final.wagers[playerId] = clampWager(input.value, cap);
+    });
+    input.addEventListener('change', function () {
+      const amount = clampWager(input.value, cap);
+      final.wagers[playerId] = amount;
+      input.value = amount;
+      window.State.persist();
+    });
+
+    field.appendChild(input);
+    return field;
   }
 
   function renderCategory() {
@@ -127,29 +160,14 @@ window.Final = (function () {
         : '')));
 
     bodyEl.appendChild(el('div', 'final-note',
-      'Everyone sees the category and writes down a secret wager, up to their ' +
-      'own score. Then the clue goes up and they write their answer beside it.'));
+      'Everyone locks in a secret wager, up to their own score, then the ' +
+      'category is acted out. Judge each answer on the next screen.'));
 
     const actions = el('div', 'clue-actions');
-    actions.appendChild(button('Show the clue', 'btn btn-gold btn-big', function () {
-      setPhase('clue');
-    }));
-    actions.appendChild(button('Back to board', 'btn btn-quiet', backToBoard));
-    bodyEl.appendChild(actions);
-  }
-
-  function renderClue() {
-    const state = window.State.get();
-
-    bodyEl.appendChild(el('div', 'final-label', state.board.final.category));
-    bodyEl.appendChild(el('div', 'clue-text', state.board.final.clue));
-    bodyEl.appendChild(el('div', 'final-note',
-      'Everyone writes their answer down. When time is up, reveal and score.'));
-
-    const actions = el('div', 'clue-actions');
-    actions.appendChild(button('Reveal answer & score', 'btn btn-gold btn-big', function () {
+    actions.appendChild(button('Enter wagers', 'btn btn-gold btn-big', function () {
       setPhase('judge');
     }));
+    actions.appendChild(button('Back to board', 'btn btn-quiet', backToBoard));
     bodyEl.appendChild(actions);
   }
 
@@ -157,11 +175,12 @@ window.Final = (function () {
     const state = window.State.get();
     const final = state.final;
 
-    bodyEl.appendChild(el('div', 'final-label', 'Correct response'));
+    bodyEl.appendChild(el('div', 'final-label', 'Wagers'));
     bodyEl.appendChild(el('div', 'clue-answer', state.board.final.answer));
     bodyEl.appendChild(el('div', 'final-note',
-      'Now go around the table: type each player\'s wager, then mark their ' +
-      'answer. Changing a wager after judging re-scores it automatically.'));
+      'Enter each player\'s wager, then act out the category and mark their ' +
+      'answer. A wager can still be changed after judging — it re-scores ' +
+      'automatically.'));
 
     const list = el('ul', 'judge-list');
 
@@ -175,32 +194,8 @@ window.Final = (function () {
       const row = el('li', 'judge-row' + (verdict ? ' ' + verdict : ''));
       row.appendChild(el('span', 'judge-name', player.name));
 
-      const field = el('label', 'judge-wager');
-      field.appendChild(el('span', 'judge-wager-sign', '$'));
-
-      const input = el('input', 'judge-wager-input');
-      input.type = 'number';
-      input.min = '0';
-      input.max = String(cap);
-      input.step = '1';
-      input.value = final.wagers[playerId] !== undefined ? final.wagers[playerId] : '';
-      input.placeholder = '0';
-      input.setAttribute('aria-label', 'Wager for ' + player.name);
-
-      // Write straight into state without a redraw. Committing here would
-      // rebuild the row on blur — and destroy the very button whose click
-      // caused that blur, swallowing the judgement.
-      input.addEventListener('input', function () {
-        final.wagers[playerId] = clampWager(input.value, cap);
-      });
-      input.addEventListener('change', function () {
-        const amount = clampWager(input.value, cap);
-        final.wagers[playerId] = amount;
-        input.value = amount;
-        window.State.persist();
-      });
-
-      field.appendChild(input);
+      const field = wagerField(playerId, cap);
+      const input = field.querySelector('input');
       row.appendChild(field);
       row.appendChild(el('span', 'judge-cap', 'of ' + window.Players.money(cap)));
 

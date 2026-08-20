@@ -11,6 +11,7 @@ window.Clue = (function () {
   const innerEl = document.getElementById('clue-inner');
 
   const MIN_WAGER = 5;
+  const BONUS_AMOUNT = 100;
 
   let current = null;
 
@@ -117,6 +118,20 @@ window.Clue = (function () {
     current.wrongIds.push(playerId);
     current.selectedId = null;
     current.answerRevealed = false;
+    render();
+  }
+
+  /* A host's discretionary award — a funny answer, a good guess that wasn't
+     quite it, whatever. Independent of the clue's own scoring: it doesn't
+     touch wrongIds or mark the clue resolved, so Correct/Wrong/Pass still
+     work normally afterward. */
+  function markBonus() {
+    if (!current.selectedId || current.resolved) return;
+    window.State.apply({
+      label: 'Bonus',
+      playerId: current.selectedId,
+      delta: BONUS_AMOUNT
+    });
     render();
   }
 
@@ -363,6 +378,10 @@ window.Clue = (function () {
     const wrong = button('Wrong  −' + window.Players.money(stake()), 'btn btn-wrong', markWrong);
     wrong.disabled = !current.selectedId || current.resolved;
     actions.appendChild(wrong);
+
+    const bonus = button('Bonus  +' + window.Players.money(BONUS_AMOUNT), 'btn btn-bonus', markBonus);
+    bonus.disabled = !current.selectedId || current.resolved;
+    actions.appendChild(bonus);
 
     const noOne = button('No one answered', 'btn btn-quiet', passOnClue);
     noOne.disabled = current.resolved;

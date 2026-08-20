@@ -4,6 +4,7 @@
 
   const screens = {
     setup: document.getElementById('screen-setup'),
+    intro: document.getElementById('screen-intro'),
     board: document.getElementById('screen-board'),
     leaderboard: document.getElementById('screen-leaderboard'),
     final: document.getElementById('screen-final')
@@ -46,6 +47,7 @@
 
     window.Players.render();
 
+    if (active === 'intro') window.Intro.render();
     if (active === 'board') window.Board.render();
     if (active === 'leaderboard') window.Leaderboard.render();
     if (active === 'final') window.Final.render();
@@ -66,7 +68,7 @@
         return;
       }
       hideError();
-      window.State.setScreen('board');
+      window.Intro.start();
     },
 
     'show-board': function () { window.State.setScreen('board'); },
@@ -180,6 +182,11 @@
 
     if (window.Clue.isOpen()) {
       if (window.Clue.handleKey(event)) event.preventDefault();
+      return;
+    }
+
+    if (window.State.get().screen === 'intro') {
+      if (window.Intro.handleKey(event)) event.preventDefault();
       return;
     }
 

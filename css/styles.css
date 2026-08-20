@@ -94,6 +94,9 @@ body {
 .btn-wrong { background: var(--red); }
 .btn-wrong:hover:not(:disabled) { background: #f0685a; }
 
+.btn-bonus { background: #8a4fd6; }
+.btn-bonus:hover:not(:disabled) { background: #a066ea; }
+
 .file-btn { display: inline-block; }
 
 /* --------------------------- setup screen ------------------------ */
@@ -509,6 +512,52 @@ body {
   color: #ffb3a8;
   font-weight: 700;
   min-height: 1.2em;
+}
+
+/* --------------------------- category intro ----------------------- */
+
+#screen-intro {
+  background: var(--blue);
+  overflow-y: auto;
+}
+
+.intro-body {
+  margin: auto;
+  width: min(1000px, 92vw);
+  padding: 2.5rem 0;
+  text-align: center;
+}
+
+.intro-eyebrow {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+  margin: 0 0 1.5rem;
+}
+
+.intro-category {
+  font-family: var(--display);
+  font-size: clamp(2.2rem, 7vw, 5rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--gold-bright);
+  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.45);
+  margin: 0 0 1.5rem;
+  animation: intro-pop 0.35s ease-out;
+}
+
+@keyframes intro-pop {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.intro-progress {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  margin: 0 0 2rem;
 }
 
 /* ------------------------ final jeopardy ------------------------- */
